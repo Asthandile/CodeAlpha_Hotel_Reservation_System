@@ -1,0 +1,40 @@
+import java.util.Date;
+
+public class Reservation {
+    private Room room;
+    private  String guestName;
+    private Date startdate;
+    private Date enddate;
+    private  double total;
+
+    public Reservation(Room room, String guestName, Date startdate,Date enddate) {
+        this.room = room;
+        this.guestName = guestName;
+        this.startdate = startdate;
+        this.enddate = enddate;
+        //this.total=
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public String getGuestName() {
+        return guestName;
+    }
+
+    public Date getStartdate() {
+        return startdate;
+    }
+
+    public Date getEnddate() {
+        return enddate;
+    }
+
+    public double getTotal() {
+        long duration=enddate.getTime()-startdate.getTime();
+        long days= duration/(1000*60*60*24);
+        double total= days*room.getPricepernight();
+        return total;
+    }
+}
