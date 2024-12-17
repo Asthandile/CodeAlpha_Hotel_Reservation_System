@@ -1,0 +1,180 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+
+public class HotelSystem extends JFrame {
+    private  JFrame frame;
+    private Hotel hotel;
+
+
+    private JTextField guestNametxt,startdatetxt,enddatetxt;
+    private JComboBox<Room>roomJComboBox;
+    private  JLabel category;
+
+    public  void CreateGUI(){
+        hotel=new Hotel();
+        JFrame frame = new JFrame("Hotel Reservation System");
+
+        JPanel inputPanel= new JPanel();
+        inputPanel.setLayout(new GridLayout(5,2,10,10));
+
+        inputPanel.add(new JLabel("Guest Name:"));
+        guestNametxt=new JTextField();
+        inputPanel.add(guestNametxt);
+
+        inputPanel.add(new JLabel("Start Date(yyyy-MM-dd):"));
+        startdatetxt= new JTextField();
+        inputPanel.add(startdatetxt);
+
+        inputPanel.add(new JLabel("End Date(yyyy-MM-dd):"));
+        enddatetxt= new JTextField();
+        inputPanel.add(enddatetxt);
+        category = new JLabel("Select Room");
+
+        roomJComboBox = new JComboBox<>();
+
+       updateRoomComboBox();
+
+        inputPanel.add(category);
+        inputPanel.add(roomJComboBox);
+        frame.add(inputPanel,BorderLayout.NORTH);
+
+        JPanel outPanel= new JPanel();
+        outPanel.setLayout(new GridLayout(2,1,20,20));
+
+        JButton searchButton= new JButton("Search Available Rooms");
+        outPanel.add(searchButton);
+        JButton reserveButton = new JButton("Make Reservation");
+        outPanel.add(reserveButton);
+        frame.add(outPanel, BorderLayout.SOUTH);
+        JButton viewButton= new JButton("View Reservation");
+        outPanel.add(viewButton);
+        JButton paymentButton = new JButton("View Payment ");
+        outPanel.add(paymentButton);
+
+
+        frame.setLocation(300,300);
+        frame.setSize(600,400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+        paymentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                List<Reservation>reservations = hotel.getReservations();
+                if (! reservations.isEmpty()){
+                    Reservation lastReservation= reservations.get(reservations.size()-1);
+                    double total = lastReservation.getTotal();
+                    JOptionPane.showMessageDialog(frame,"Total payment is R"+ total);
+                }else {
+                    JOptionPane.showMessageDialog(frame,"No reservations found.");
+                }
+
+            }
+        });
+
+        viewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                List<Reservation>reservations = hotel.getReservations();
+                for (Reservation reservation : reservations){
+                 JOptionPane.showMessageDialog(frame,"Room no:"+ reservation.getRoom().getRoomno()+"\n Guest name:"+ reservation.getGuestName()+"\nStart date:"+ reservation.getStartdate()+"\nEnd date:"+reservation.getEnddate()+"\nTotal price:"+ reservation.getTotal());
+                }
+
+
+            }
+        });
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchavailablerooms();
+            }
+        });
+        reserveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MakeReservation();
+            }
+        });
+
+
+    }
+    private void updateRoomComboBox(){
+        roomJComboBox.removeAllItems();
+        List<Room> availablerooms= hotel.searchavailablerooms(new Date(),new Date());
+        for (Room room: availablerooms){
+            roomJComboBox.addItem(room);
+        }
+    }
+    private  void searchavailablerooms(){
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date startdate= sdf.parse(enddatetxt.getText());
+            Date  enddate= sdf.parse(enddatetxt.getText());
+            List<Room> availablerooms= hotel.searchavailablerooms(startdate,enddate);
+
+            for (Room room: availablerooms){
+
+                JOptionPane.showMessageDialog(frame,"\nRoom number:"+ room.getRoomno()+ "\nCategory:"+ room.getCategory()+"\nPrice:"+room.getPricepernight());
+            }
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(frame,"invalid date format .please use yyyy-MM-dd");
+        }
+    }
+    private void MakeReservation(){
+
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date startdate= sdf.parse(enddatetxt.getText());
+            Date  enddate= sdf.parse(enddatetxt.getText());
+
+
+            Calendar calendar =Calendar.getInstance();
+            calendar.setTime(enddate);
+            calendar.add(Calendar.DAY_OF_YEAR,1);
+            enddate=calendar.getTime();
+         enddate.setDate(enddate.getDate()+1);
+
+             enddate.setHours(23);
+             enddate.setMinutes(59);
+             enddate.setSeconds(59);
+            Room selectedRoom= (Room) roomJComboBox.getSelectedItem();
+            String guestName= guestNametxt.getText();
+            long duration=enddate.getTime()-startdate.getTime();
+             long days= duration/(1000*60*60*24);
+           
+            double Total= ( days)*selectedRoom.getPricepernight();
+
+
+          if (hotel.makeReservation(selectedRoom,guestName,startdate,enddate)){
+
+              Reservation reservation = hotel.getReservations().get(hotel.getReservations().size()-1);
+                JOptionPane.showMessageDialog(frame,"Reservation is succesful for " + guestName +  " in Room:" + selectedRoom.getRoomno());
+            }else {
+                JOptionPane.showMessageDialog(frame,"Room is not available for the selected date.");
+            }
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(frame,"Invalid date format.Plese use yyyy-MM-dd.");
+        }
+
+    }
+    public static void main(String[] args) {
+
+        HotelSystem obj = new HotelSystem();
+        obj.CreateGUI();
+
+
+    }
+}
