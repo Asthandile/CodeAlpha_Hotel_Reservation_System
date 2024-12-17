@@ -1,0 +1,48 @@
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class Hotel {
+
+
+        private java.util.List<Room> rooms;
+        private java.util.List<Reservation> reservations;
+
+        public  Hotel(){
+            rooms=new ArrayList<>();
+            reservations= new ArrayList<>();
+            initializeRooms();
+        }
+
+        public void initializeRooms(){
+            rooms.add(new Room(101,"Single",100.0));
+            rooms.add(new Room(102,"Double",150.0));
+            rooms.add(new Room(103,"Suite",200.0));
+            rooms.add(new Room(104,"Deluxe",250.0));
+            rooms.add(new Room(105,"Executive",300.0));
+            rooms.add(new Room(106,"Family",500));
+        }
+        public java.util.List<Room> searchavailablerooms(Date startdate, Date enddate){
+            java.util.List<Room> availablerooms= new ArrayList<>();
+            for (Room room:rooms){
+                if (room.isAvailable()){
+                    availablerooms.add(room);
+                }
+            }
+            return  availablerooms;
+        }
+        public boolean makeReservation(Room room,String guestName,Date startdate,Date enddate){
+            if(room.isAvailable()){
+                room.setAvailable(false);
+                Reservation reservation = new Reservation(room,guestName,startdate,enddate);
+                reservations.add(reservation);
+                return true;
+            }
+            return false;
+        }
+        public List<Reservation> getReservations(){
+            return reservations;
+        }
+    }
+
+
