@@ -1,0 +1,40 @@
+public class Room {
+    private int Roomno;
+    private String Category;
+    private double pricepernight;
+    private boolean isAvailable;
+
+    public Room(int roomno, String Category, double pricepernight) {
+
+        Roomno = roomno;
+        this.Category = Category;
+        this.pricepernight = pricepernight;
+        this.isAvailable = true;
+    }
+
+    public int getRoomno() {
+        return Roomno;
+    }
+
+
+    public double getPricepernight() {
+        return pricepernight;
+    }
+
+
+    public String getCategory() {
+        return Category;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+
+    }
+    public void setAvailable(boolean available) {
+        isAvailable = available;
+    }
+
+   public  String toString(){
+        return getCategory();
+   }
+}
